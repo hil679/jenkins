@@ -39,6 +39,7 @@ THE SOFTWARE.
       <j:if test="${it.channel!=null}">
         <l:task href="${rootURL}/${it.url}script" icon="symbol-terminal" permission="${app.ADMINISTER}" title="${%Script Console}"/>
       </j:if>
+      <l:task href="${rootURL}/${it.url}offline-history" icon="symbol-logs" title="${%Offline History}"/>
       <st:include page="sidepanel2.jelly" optional="true" /><!-- hook for derived class to add more items -->
       <t:actions />
     </l:tasks>
