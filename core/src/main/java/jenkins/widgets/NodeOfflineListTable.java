@@ -29,6 +29,7 @@ import hudson.Util;
 import hudson.model.BallColor;
 import hudson.model.Node;
 import hudson.model.Run;
+import hudson.slaves.OfflineCause;
 import jenkins.console.ConsoleUrlProvider;
 import net.sf.json.JSONObject;
 import org.kohsuke.accmod.Restricted;
@@ -37,15 +38,20 @@ import org.kohsuke.accmod.restrictions.DoNotUse;
 import java.time.Instant;
 
 @Restricted(DoNotUse.class) // only for nodeOfflineListTable.jelly
-public class NodeOfflineListTable { // extends RunListProgressiveRendering compute참고
-
-    protected void calculate(Node node, JSONObject element) {
-        element.put("url", node.getSearchUrl());
+public class NodeOfflineListTable extends OfflineListProgressiveRendering{ // extends RunListProgressiveRendering compute참고
+    @Override protected void calculate(Node node, JSONObject element) {
+        System.out.println(node.getNodeName());
+        System.out.println(node.getTemporaryOfflineCause());
+//        element.put("url", node.getSearchUrl());
 //        element.put("user", )
 //        element.put("iconName", node.getIconColor().getIconName());
 //        element.put("parentFullDisplayName", Functions.breakableString(Functions.escape(node.getParent().toString())));
-        element.put("displayName", node.getDisplayName());
-        element.put("offlineReason", node.getTemporaryOfflineCause());
+        OfflineCause offlineCause = node.getTemporaryOfflineCause();
+        element.put("Date", offlineCause.getTimestamp());
+        element.put("offlineReason", offlineCause.toString());
+        element.put("User", offlineCause);
+        System.out.println(element.get("offlineReason"));
+
 //        element.put("timestampString", node.getTimestampString());
     }
 

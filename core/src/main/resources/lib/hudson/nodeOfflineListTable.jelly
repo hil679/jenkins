@@ -32,13 +32,13 @@ THE SOFTWARE.
   </st:documentation>
 
   <t:setIconSize/>
+  <st:adjunct includes="hudson.model.Node.nodeOffline_resources"/>
   <j:new var="handler" className="jenkins.widgets.NodeOfflineListTable"/>
   ${handler.setNode(attrs.node)}
-  <l:progressiveRendering handler="${handler}" callback="displayBuilds"/>
+  <l:progressiveRendering handler="${handler}" callback="displayNode"/>
   <table class="jenkins-table ${iconSize == '16x16' ? 'jenkins-table--small' : iconSize == '24x24' ? 'jenkins-table--medium' : ''} sortable" id="projectStatus" style="display: none;" data-icon-size-class="${iconSizeClass}"  data-console-output-icon="${consoleOutputIcon}">
     <thead>
         <tr>
-<!--            <th class="jenkins-table__cell&#45;&#45;tight">${%S}</th>-->
             <th>${%User}</th>
             <th initialSortDir="up">${%Date}</th>
             <th>${%Offline Reason}</th>
