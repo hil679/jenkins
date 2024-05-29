@@ -60,6 +60,8 @@ import hudson.util.TagCloud;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -148,12 +150,22 @@ public abstract class Node extends AbstractModelObject implements Reconfigurable
         }
         if (BulkChange.contains(this))   return;
         getConfigFile().write(this);
+
+        LocalDateTime today = LocalDateTime.now();
+        String now = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+        getOfflineHistoryFile(now).write(this.getTemporaryOfflineCause());
+
         SaveableListener.fireOnChange(this, getConfigFile());
     }
 
     protected XmlFile getConfigFile() {
         return parent.getConfigFile(this);
     }
+
+    public XmlFile getOfflineHistoryFile(String date) {
+        return parent.getOfflineHistoryFile(this, date);
+    }
+
 
     /**
      * Name of this node.
@@ -236,7 +248,7 @@ public abstract class Node extends AbstractModelObject implements Reconfigurable
     /**
      * Creates a new {@link Computer} object that acts as the UI peer of this {@link Node}.
      *
-     * Nobody but {@link Jenkins#updateComputerList()} should call this method.
+     * Nobody but {@link Jenkins# updateComputerList()} should call this method.
      * @return Created instance of the computer.
      *         Can be {@code null} if the {@link Node} implementation does not support it (e.g. {@link Cloud} agent).
      */

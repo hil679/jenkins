@@ -39,17 +39,17 @@ import java.time.Instant;
 
 @Restricted(DoNotUse.class) // only for nodeOfflineListTable.jelly
 public class NodeOfflineListTable extends OfflineListProgressiveRendering{ // extends RunListProgressiveRendering compute참고
-    @Override protected void calculate(Node node, JSONObject element) {
-        System.out.println(node.getNodeName());
-        System.out.println(node.getTemporaryOfflineCause());
+    @Override protected void calculate(OfflineCause offlineCause, JSONObject element) {
+//        System.out.println(node.getNodeName());
+//        System.out.println(node.getTemporaryOfflineCause());
 //        element.put("url", node.getSearchUrl());
 //        element.put("user", )
 //        element.put("iconName", node.getIconColor().getIconName());
 //        element.put("parentFullDisplayName", Functions.breakableString(Functions.escape(node.getParent().toString())));
-        OfflineCause offlineCause = node.getTemporaryOfflineCause();
-        element.put("Date", offlineCause.getTimestamp());
+//        OfflineCause offlineCause = node.getTemporaryOfflineCause();
+        element.put("Date", String.valueOf(offlineCause.getTime()));
         element.put("offlineReason", offlineCause.toString());
-        element.put("User", offlineCause);
+        element.put("User", offlineCause.toString());
         System.out.println(element.get("offlineReason"));
 
 //        element.put("timestampString", node.getTimestampString());

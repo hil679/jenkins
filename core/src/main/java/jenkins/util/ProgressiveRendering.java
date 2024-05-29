@@ -182,6 +182,9 @@ public abstract class ProgressiveRendering {
         return new RequestImpl(Stapler.getCurrent(), (HttpServletRequest) Proxy.newProxyInstance(ProgressiveRendering.class.getClassLoader(), new Class<?>[] {HttpServletRequest.class}, new InvocationHandler() {
             @Override public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 String m = method.getName();
+//                System.out.println("method " + m);
+//                for(String k : getters.keySet())
+//                    System.out.println(k);
                 if (getters.containsKey(m)) {
                     return getters.get(m);
                 } else { // TODO implement other methods as needed

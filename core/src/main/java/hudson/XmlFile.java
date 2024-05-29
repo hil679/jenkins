@@ -34,15 +34,8 @@ import hudson.diagnosis.OldDataMonitor;
 import hudson.model.Descriptor;
 import hudson.util.AtomicFileWriter;
 import hudson.util.XStream2;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
+
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -104,7 +97,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * <p>
  * You may also want to call {@link OldDataMonitor#report(UnmarshallingContext, String)}.
  * This can be done within a nested class {@code ConverterImpl} extending {@link hudson.util.XStream2.PassthruConverter}
- * in an override of {@link hudson.util.XStream2.PassthruConverter#callback}.
+ * in an override of {@link hudson.util.XStream2.PassthruConverter # callback}.
  *
  * <p>
  * In some limited cases (specifically when the class is the root object
@@ -225,6 +218,62 @@ public final class XmlFile {
             w.abort();
         }
     }
+//
+//    public void addContents(Object o) throws IOException {
+//        if (LOGGER.isLoggable(Level.FINEST)) {
+//            LOGGER.log(Level.FINEST, new Throwable(), () -> "Adding contents:  " + file);
+//        }
+//        mkdirs();
+//        AtomicFileWriter w = force
+//                ? new AtomicFileWriter(file)
+//                : new AtomicFileWriter(file.toPath(), StandardCharsets.UTF_8, false, false);
+//        try {
+//            BufferedReader reader;
+//            String str;
+//
+//            System.out.println(!file.exists());
+//            if (!file.exists()) {
+//                w.write("<?xml version='1.1' encoding='UTF-8'?>\n");
+//                writing.set(file);
+//                beingWritten.put(o, null);
+//
+//                try {
+//                    xs.toXML(o, w);
+//                } finally {
+//                    beingWritten.remove(o);
+//                    writing.set(null);
+//                }
+//                w.commit();
+//            } else {
+//                //xml에 내용 추가
+//                writing.set(file);
+//                beingWritten.put(o, null);
+//                try {
+//                    xs.toXML(o, w);
+//
+////                    w.write(newXmlContent);
+//                } finally {
+//                    beingWritten.remove(o);
+//                    writing.set(null);
+//                    w.write("\n");
+//                }
+//            }
+//            reader = new BufferedReader(new FileReader(file.getAbsolutePath()));
+//            while ((str = reader.readLine()) != null) {
+//                System.out.println(str);
+//            }
+////            w.commit();
+//            System.out.println("4######");
+//            reader = new BufferedReader(new FileReader(file.getAbsolutePath()));
+//            while ((str = reader.readLine()) != null) {
+//                System.out.println(str);
+//            }
+//        } catch (RuntimeException e) {
+//            throw new IOException(e);
+//        } finally {
+//            w.abort();
+//        }
+//    }
 
     /**
      * Provides an XStream replacement for an object unless a call to {@link #write} is currently in progress.

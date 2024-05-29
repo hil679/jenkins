@@ -41,6 +41,10 @@ import hudson.slaves.EphemeralNode;
 import hudson.slaves.OfflineCause;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -188,6 +192,17 @@ public class Nodes implements PersistenceRoot {
     public XmlFile getConfigFile(String nodeName) {
         return new XmlFile(Jenkins.XSTREAM, new File(getRootDir(), nodeName + File.separator + "config.xml"));
     }
+
+    public XmlFile getOfflineHistoryFile(Node node, String date) {
+        StringBuilder subdir = new StringBuilder("offlinehistory/").append(date);
+        System.out.println(subdir.toString());
+        return getOfflineHistoryFile(new File(node.getRootDir(), subdir.toString()));
+    }
+
+    public XmlFile getOfflineHistoryFile (File dir) {
+        return new XmlFile(Jenkins.XSTREAM, new File(dir, "offlinehistory.xml"));
+    }
+
 
     /**
      * Updates an existing node on disk. If the node instance is not in the list of nodes, then this

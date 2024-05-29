@@ -24,8 +24,11 @@
 
 package jenkins.widgets;
 
+import com.thoughtworks.xstream.XStream;
+import hudson.XmlFile;
 import hudson.model.Node;
 import hudson.model.Run;
+import hudson.slaves.OfflineCause;
 import hudson.util.RunList;
 import jenkins.util.ProgressiveRendering;
 import net.sf.json.JSON;
@@ -34,6 +37,7 @@ import net.sf.json.JSONObject;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,21 +63,16 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
 
     @Override protected void compute() throws Exception {
         double decay = 1;
-        JSONObject element = new JSONObject();
-        calculate(node, element);
-        results.add(element);
-//        for (Run<?, ?> build : builds) {
-//            if (canceled()) {
-//                return;
-//            }
-//            JSONObject element = new JSONObject();
-//            calculate(node, element);
-//            synchronized (this) {
-//                results.add(element);
-//            }
-//            decay *= 1 - 1 / MAX_LIKELY_RUNS;
-//            progress(1 - decay);
-//        }
+        List<OfflineCause> offlineCauses = getOfflineHistory();
+        for (OfflineCause offlineCause : offlineCauses) {
+            JSONObject element = new JSONObject();
+            calculate(offlineCause, element);
+            synchronized (this) {
+                results.add(element);
+            }
+            decay *= 1 - 1 / MAX_LIKELY_RUNS;
+            progress(1 - decay);
+        }
     }
 
     @Override protected synchronized JSON data() {
@@ -82,5 +81,26 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
         return d;
     }
 
-    protected abstract void calculate(Node node, JSONObject element);
+    protected abstract void calculate(OfflineCause offlineCause, JSONObject element);
+
+    public List<OfflineCause> getOfflineHistory() {
+        List<OfflineCause> offlineCauses = new ArrayList<>();
+        String[] historyDateDir = new File(node.getRootDir(), "offlinehistory").list();
+
+        XStream xStream = new XStream();
+        xStream.allowTypes(new Class[] {
+                OfflineCause.UserCause.class
+        });
+//        xStream.allowTypesByWildcard(new String[] {
+//                "hudson.slaves.OfflineCause.**"
+//        });
+        for (String date : historyDateDir) {
+            System.out.println(date);
+            XmlFile offlineHistoryXml = node.getOfflineHistoryFile(date);
+
+            offlineCauses.add((OfflineCause) xStream.fromXML(offlineHistoryXml.getFile()));
+        }
+
+        return offlineCauses;
+    }
 }

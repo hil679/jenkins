@@ -28,9 +28,9 @@ window.displayNode = function (data) {
     tr.appendChild(td2);
 
     var td3 = document.createElement("td");
-    td3.setAttribute("data", e.offlineReason);
+    td3.setAttribute("data", e.Date);
     td3.classList.add("jenkins-table__cell--tight", "jenkins-table__icon");
-    td3.textContent = e.offlineReason
+    td3.textContent = e.Date
     var div3 = document.createElement("div");
     div3.classList.add("jenkins-table__cell__button-wrapper");
     td3.appendChild(div3);
