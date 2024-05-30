@@ -39,6 +39,8 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -86,7 +88,7 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
     public List<OfflineCause> getOfflineHistory() {
         List<OfflineCause> offlineCauses = new ArrayList<>();
         String[] historyDateDir = new File(node.getRootDir(), "offlinehistory").list();
-
+        Arrays.sort(historyDateDir);
         XStream xStream = new XStream();
         xStream.allowTypes(new Class[] {
                 OfflineCause.UserCause.class
@@ -95,7 +97,6 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
 //                "hudson.slaves.OfflineCause.**"
 //        });
         for (String date : historyDateDir) {
-            System.out.println(date);
             XmlFile offlineHistoryXml = node.getOfflineHistoryFile(date);
 
             offlineCauses.add((OfflineCause) xStream.fromXML(offlineHistoryXml.getFile()));

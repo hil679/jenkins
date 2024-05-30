@@ -62,10 +62,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -153,7 +150,19 @@ public abstract class Node extends AbstractModelObject implements Reconfigurable
 
         LocalDateTime today = LocalDateTime.now();
         String now = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-        getOfflineHistoryFile(now).write(this.getTemporaryOfflineCause());
+
+        String[] historyDate = new File(this.getRootDir(), "offlinehistory").list();
+        Arrays.sort(historyDate, Collections.reverseOrder());
+        String recent = historyDate[0];
+
+        XmlFile offlineHistoryXml = this.getOfflineHistoryFile(recent);
+        OfflineCause recentOfflineCause = (OfflineCause) Jenkins.XSTREAM.fromXML(offlineHistoryXml.getFile());
+        for (String h : historyDate) {
+            System.out.println(h);
+        }
+
+        if (!this.getTemporaryOfflineCause().equals(recentOfflineCause))
+            getOfflineHistoryFile(now).write(this.getTemporaryOfflineCause());
 
         SaveableListener.fireOnChange(this, getConfigFile());
     }
