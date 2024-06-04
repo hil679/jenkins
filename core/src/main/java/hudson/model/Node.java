@@ -46,13 +46,7 @@ import hudson.remoting.Callable;
 import hudson.remoting.VirtualChannel;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
-import hudson.slaves.Cloud;
-import hudson.slaves.ComputerListener;
-import hudson.slaves.EphemeralNode;
-import hudson.slaves.NodeDescriptor;
-import hudson.slaves.NodeProperty;
-import hudson.slaves.NodePropertyDescriptor;
-import hudson.slaves.OfflineCause;
+import hudson.slaves.*;
 import hudson.util.ClockDifference;
 import hudson.util.DescribableList;
 import hudson.util.EnumConverter;
@@ -148,21 +142,17 @@ public abstract class Node extends AbstractModelObject implements Reconfigurable
         if (BulkChange.contains(this))   return;
         getConfigFile().write(this);
 
+        OfflineHistoryUtils offlineHistoryUtils = new OfflineHistoryUtils(this);
+        OfflineCause recentOfflineCause = offlineHistoryUtils.getRecentHistory();
         LocalDateTime today = LocalDateTime.now();
         String now = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
 
-        String[] historyDate = new File(this.getRootDir(), "offlinehistory").list();
-        Arrays.sort(historyDate, Collections.reverseOrder());
-        String recent = historyDate[0];
+        System.out.println("diff bool" + offlineHistoryUtils.reflectionDiffer(this.getTemporaryOfflineCause(), recentOfflineCause, "timestamp"));
 
-        XmlFile offlineHistoryXml = this.getOfflineHistoryFile(recent);
-        OfflineCause recentOfflineCause = (OfflineCause) Jenkins.XSTREAM.fromXML(offlineHistoryXml.getFile());
-        for (String h : historyDate) {
-            System.out.println(h);
-        }
-
-        if (!this.getTemporaryOfflineCause().equals(recentOfflineCause))
+        if (offlineHistoryUtils.reflectionDiffer(this.getTemporaryOfflineCause(), recentOfflineCause, "timestamp")) {
             getOfflineHistoryFile(now).write(this.getTemporaryOfflineCause());
+            SaveableListener.fireOnChange(this, getOfflineHistoryFile(now));
+        }
 
         SaveableListener.fireOnChange(this, getConfigFile());
     }

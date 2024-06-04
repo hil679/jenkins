@@ -29,6 +29,7 @@ import hudson.XmlFile;
 import hudson.model.Node;
 import hudson.model.Run;
 import hudson.slaves.OfflineCause;
+import hudson.slaves.OfflineHistoryUtils;
 import hudson.util.RunList;
 import jenkins.util.ProgressiveRendering;
 import net.sf.json.JSON;
@@ -38,6 +39,8 @@ import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,6 +92,7 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
         List<OfflineCause> offlineCauses = new ArrayList<>();
         String[] historyDateDir = new File(node.getRootDir(), "offlinehistory").list();
         Arrays.sort(historyDateDir);
+
         XStream xStream = new XStream();
         xStream.allowTypes(new Class[] {
                 OfflineCause.UserCause.class
@@ -96,9 +100,11 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
 //        xStream.allowTypesByWildcard(new String[] {
 //                "hudson.slaves.OfflineCause.**"
 //        });
+        OfflineHistoryUtils offlineHistoryUtils = new OfflineHistoryUtils();
         for (String date : historyDateDir) {
+            if (!offlineHistoryUtils.dateFormatCheck(date))
+                continue;
             XmlFile offlineHistoryXml = node.getOfflineHistoryFile(date);
-
             offlineCauses.add((OfflineCause) xStream.fromXML(offlineHistoryXml.getFile()));
         }
 
