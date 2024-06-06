@@ -47,10 +47,8 @@ import hudson.remoting.VirtualChannel;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.slaves.*;
-import hudson.util.ClockDifference;
-import hudson.util.DescribableList;
-import hudson.util.EnumConverter;
-import hudson.util.TagCloud;
+import hudson.util.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -143,16 +141,15 @@ public abstract class Node extends AbstractModelObject implements Reconfigurable
         getConfigFile().write(this);
 
         OfflineHistoryUtils offlineHistoryUtils = new OfflineHistoryUtils(this);
-        OfflineCause recentOfflineCause = offlineHistoryUtils.getRecentHistory();
         LocalDateTime today = LocalDateTime.now();
         String now = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+        String contents = Jenkins.XSTREAM2.toXML(this.temporaryOfflineCause);
 
-        System.out.println("diff bool" + offlineHistoryUtils.reflectionDiffer(this.getTemporaryOfflineCause(), recentOfflineCause, "timestamp"));
+        System.out.println("diff bool" + offlineHistoryUtils.hasDuplicateHistory(contents, "timestamp"));
 
-        if (offlineHistoryUtils.reflectionDiffer(this.getTemporaryOfflineCause(), recentOfflineCause, "timestamp")) {
-            getOfflineHistoryFile(now).write(this.getTemporaryOfflineCause());
-            SaveableListener.fireOnChange(this, getOfflineHistoryFile(now));
-        }
+//        if (offlineHistoryUtils.hasDuplicateHistory(xmlFile, "timestamp")) {
+//            SaveableListener.fireOnChange(this, getOfflineHistoryFile(now));
+//        }
 
         SaveableListener.fireOnChange(this, getConfigFile());
     }
