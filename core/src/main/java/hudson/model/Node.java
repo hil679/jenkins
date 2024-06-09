@@ -143,13 +143,15 @@ public abstract class Node extends AbstractModelObject implements Reconfigurable
         OfflineHistoryUtils offlineHistoryUtils = new OfflineHistoryUtils(this);
         LocalDateTime today = LocalDateTime.now();
         String now = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-        String contents = Jenkins.XSTREAM2.toXML(this.temporaryOfflineCause);
+        OfflineHistory offlineHistory = new OfflineHistory(this);
+        String contents = Jenkins.XSTREAM2.toXML(offlineHistory);
 
-        System.out.println("diff bool" + offlineHistoryUtils.hasDuplicateHistory(contents, "timestamp"));
+        System.out.println("diff bool" + !offlineHistoryUtils.hasDuplicateHistory(contents, "timestamp"));
 
-//        if (offlineHistoryUtils.hasDuplicateHistory(xmlFile, "timestamp")) {
-//            SaveableListener.fireOnChange(this, getOfflineHistoryFile(now));
-//        }
+        if (!offlineHistoryUtils.hasDuplicateHistory(contents, "timestamp")) {
+            getOfflineHistoryFile(now).write(offlineHistory);
+            SaveableListener.fireOnChange(this, getOfflineHistoryFile(now));
+        }
 
         SaveableListener.fireOnChange(this, getConfigFile());
     }

@@ -31,7 +31,16 @@ THE SOFTWARE.
     </st:attribute>
   </st:documentation>
 
-  <t:setIconSize/>
+<!--  <t:setIconSize/>-->
+  <template id="jenkins-computer-status-icons">
+        <l:icon src="symbol-status-blue" id="blue" />
+        <l:icon src="symbol-status-yellow" id="yellow" />
+        <l:icon src="symbol-status-red" id="red" />
+
+        <l:icon src="symbol-status-blue-anime" id="blue-anime" />
+        <l:icon src="symbol-status-yellow-anime" id="yellow-anime" />
+        <l:icon src="symbol-status-red-anime" id="red-anime" />
+  </template>
   <st:adjunct includes="hudson.model.Node.nodeOffline_resources"/>
   <j:new var="handler" className="jenkins.widgets.NodeOfflineListTable"/>
   ${handler.setNode(attrs.node)}
@@ -39,10 +48,11 @@ THE SOFTWARE.
   <table class="jenkins-table ${iconSize == '16x16' ? 'jenkins-table--small' : iconSize == '24x24' ? 'jenkins-table--medium' : ''} sortable" id="projectStatus" style="display: none;" data-icon-size-class="${iconSizeClass}"  data-console-output-icon="${consoleOutputIcon}">
     <thead>
         <tr>
+            <th>${%OnlineOffline}</th>
             <th>${%User}</th>
             <th initialSortDir="up">${%Date}</th>
             <th>${%Offline Reason}</th>
-            <th class="jenkins-table__cell--tight" data-sort-disable="true"></th>
+<!--            <th class="jenkins-table__cell&#45;&#45;tight" data-sort-disable="true"></th>-->
         </tr>
     </thead>
     <tbody></tbody>

@@ -30,8 +30,10 @@ import hudson.model.BallColor;
 import hudson.model.Node;
 import hudson.model.Run;
 import hudson.slaves.OfflineCause;
+import hudson.slaves.OfflineHistory;
 import jenkins.console.ConsoleUrlProvider;
 import net.sf.json.JSONObject;
+import org.jenkins.ui.icon.Icon;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.DoNotUse;
 
@@ -39,20 +41,21 @@ import java.time.Instant;
 
 @Restricted(DoNotUse.class) // only for nodeOfflineListTable.jelly
 public class NodeOfflineListTable extends OfflineListProgressiveRendering{ // extends RunListProgressiveRendering compute참고
-    @Override protected void calculate(OfflineCause offlineCause, JSONObject element) {
-//        System.out.println(node.getNodeName());
-//        System.out.println(node.getTemporaryOfflineCause());
-//        element.put("url", node.getSearchUrl());
-//        element.put("user", )
-//        element.put("iconName", node.getIconColor().getIconName());
-//        element.put("parentFullDisplayName", Functions.breakableString(Functions.escape(node.getParent().toString())));
-//        OfflineCause offlineCause = node.getTemporaryOfflineCause();
-        element.put("Date", String.valueOf(offlineCause.getTime()));
-        element.put("offlineReason", offlineCause.toString());
-        element.put("User", offlineCause.toString());
-        System.out.println(element.get("offlineReason"));
+    @Override protected void calculate(OfflineHistory offlineHistory, JSONObject element) {
+        BallColor blue = BallColor.BLUE;
+        BallColor red = BallColor.RED;
+        if (offlineHistory.getIsOnline()) {
+            element.put("OnlineOffline", blue.getIconName());
+        } else {
+            element.put("OnlineOffline", red.getIconName());
+        }
+        element.put("Date", String.valueOf(offlineHistory.getTime()));
+        element.put("offlineReason", offlineHistory.getOfflineCause().toString());
+        element.put("User", offlineHistory.getUsername());
 
-//        element.put("timestampString", node.getTimestampString());
+        System.out.println(element.get("OnlineOffline"));
+        System.out.println(element.get("User"));
+
     }
 
 }

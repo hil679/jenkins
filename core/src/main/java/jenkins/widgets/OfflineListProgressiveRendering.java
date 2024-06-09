@@ -29,8 +29,10 @@ import hudson.XmlFile;
 import hudson.model.Node;
 import hudson.model.Run;
 import hudson.slaves.OfflineCause;
+import hudson.slaves.OfflineHistory;
 import hudson.slaves.OfflineHistoryUtils;
 import hudson.util.RunList;
+import hudson.util.XStream2;
 import jenkins.util.ProgressiveRendering;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -68,10 +70,10 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
 
     @Override protected void compute() throws Exception {
         double decay = 1;
-        List<OfflineCause> offlineCauses = getOfflineHistory();
-        for (OfflineCause offlineCause : offlineCauses) {
+        List<OfflineHistory> offlineHistories = getOfflineHistory();
+        for (OfflineHistory offlineHistory : offlineHistories) {
             JSONObject element = new JSONObject();
-            calculate(offlineCause, element);
+            calculate(offlineHistory, element);
             synchronized (this) {
                 results.add(element);
             }
@@ -86,17 +88,18 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
         return d;
     }
 
-    protected abstract void calculate(OfflineCause offlineCause, JSONObject element);
+    protected abstract void calculate(OfflineHistory offlineHistory, JSONObject element);
 
-    public List<OfflineCause> getOfflineHistory() {
-        List<OfflineCause> offlineCauses = new ArrayList<>();
+    public List<OfflineHistory> getOfflineHistory() {
+        List<OfflineHistory> offlineHistories = new ArrayList<>();
         String[] historyDateDir = new File(node.getRootDir(), "offlinehistory").list();
         Arrays.sort(historyDateDir);
 
-        XStream xStream = new XStream();
+        XStream2 xStream = new XStream2();
         xStream.allowTypes(new Class[] {
-                OfflineCause.UserCause.class
-        });
+//                OfflineCause.UserCause.class,
+//                OfflineHistory.class
+        });//!!!!!!
 //        xStream.allowTypesByWildcard(new String[] {
 //                "hudson.slaves.OfflineCause.**"
 //        });
@@ -105,9 +108,9 @@ public abstract class OfflineListProgressiveRendering extends ProgressiveRenderi
             if (!offlineHistoryUtils.dateFormatCheck(date))
                 continue;
             XmlFile offlineHistoryXml = node.getOfflineHistoryFile(date);
-            offlineCauses.add((OfflineCause) xStream.fromXML(offlineHistoryXml.getFile()));
+            offlineHistories.add((OfflineHistory) xStream.fromXML(offlineHistoryXml.getFile()));
         }
 
-        return offlineCauses;
+        return offlineHistories;
     }
 }

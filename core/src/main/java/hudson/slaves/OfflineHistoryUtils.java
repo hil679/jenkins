@@ -4,7 +4,17 @@ import hudson.XmlFile;
 import hudson.model.Node;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -13,8 +23,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.logging.Level.FINEST;
 
 public class OfflineHistoryUtils {
     private Node node;
@@ -70,17 +83,20 @@ public class OfflineHistoryUtils {
         return false;
     }
 
-    public boolean hasDuplicateHistory(final String history, String... excludedFields) {
+    public boolean hasDuplicateHistory(String history, String... excludedFields) {
         boolean isDuplicated = false;
-//        final ArrayList<String> timeStamps = new ArrayList<>(
-//                getRevisions(xmlFile).keySet());
         if (checkExistTimeStamp()) {
             final XmlFile lastRevision = getRecentHistory();
             try {
-                System.out.println("[check two file]");
+                System.out.println("[before]");
                 System.out.println(history);
                 System.out.println(lastRevision.asString());
-                if (history.equals(lastRevision.asString())) {
+                history = removeTag(history);
+                String lastRevisionHistory = removeTag(lastRevision.asString());
+                System.out.println("[check two file]");
+                System.out.println(history);
+                System.out.println(lastRevisionHistory);
+                if (history.equals(lastRevisionHistory)) {
                     isDuplicated = true;
                 }
             } catch (IOException e) {
@@ -90,6 +106,19 @@ public class OfflineHistoryUtils {
             }
         }
         return isDuplicated;
+    }
+
+    private String removeTag(String contents) {
+        String timestampTag = "</timestamp>";
+        String xmlConfigTag = "<?xml version=";
+        for(String line : contents.split("\n")) {
+            if (line.startsWith(xmlConfigTag))
+                contents = contents.replace(line, "").trim();
+            if (line.endsWith(timestampTag)) {
+                contents = contents.replace(line, "");
+            }
+        }
+        return contents.trim();
     }
 //    public boolean reflectionDiffer(Object o1, Object o2, String... excludeFields) {
 ////        if (o1 == o2) return true;
